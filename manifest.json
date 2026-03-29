@@ -8,18 +8,19 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "beastify@mozilla.org",
+      "id": "ynab_amazon_order_categorizer@mozilla.org",
       "data_collection_permissions": {
         "required": ["none"]
       }
     }
   },
-  "action": {
-    "default_popup": "popup/popup.html"
-  },
+  "permissions": ["tabs"],
   "host_permissions": [
       "*://www.amazon.com/*"
   ],
+  "action": {
+    "default_popup": "popup.html"
+  },
   "content_scripts": [
     {
       "matches": ["*://www.amazon.com/*"],

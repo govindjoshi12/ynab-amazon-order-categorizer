@@ -1,0 +1,11 @@
+table, th, td {
+    border: 1px solid black;
+}
+table {
+    border-collapse: collapse; /* Prevents double borders */
+    width: 100%; /* Optional: set table width */
+}
+th, td {
+    padding: 10px; /* Optional: adds space between content and border */
+    text-align: left; /* Optional: aligns text */
+}

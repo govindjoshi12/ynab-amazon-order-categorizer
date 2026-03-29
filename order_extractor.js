@@ -2,21 +2,11 @@ document.body.style.border = '10px solid red'
 
 console.log("Hello from the extension.")
 
-function extractMoneyNumber(moneyStr) {
-    return Number(moneyStr.replace(/[^0-9.-]+/g,""));
+function moneyStrToCents(moneyStr) {
+    return Number(moneyStr.replace(/[^0-9.-]+/g,"")) * 100;
 }
 
 function extractOrder() {
-    url = window.location.href
-    const matcher = new RegExp(/.*:\/\/www\.amazon\.com\/your-orders\/order-details\?orderID=.*/, "g");
-    console.log('url:', url)
-    let match = matcher.test(url)
-
-    if(!match) {
-        console.log("Please navigate to a valid order details page on amazon.")
-    } else {
-        console.log("Order found!")
-    }
 
     let labelClass = 'od-line-item-row-label'
     let costClass = 'od-line-item-row-content'
@@ -37,7 +27,7 @@ function extractOrder() {
                         .querySelector('span')
                         .textContent.trim()
         
-        summary_dict[labelText] = extractMoneyNumber(costText)
+        summary_dict[labelText] = moneyStrToCents(costText)
     }
 
     let itemsList = document.querySelectorAll('[data-component="purchasedItemsRightGrid"]');
@@ -46,17 +36,13 @@ function extractOrder() {
         let itemElem = itemsList[i]
         let itemTitle = itemElem
                         .querySelectorAll('[data-component="itemTitle"]')[0]
-                        .lastElementChild
-                        .textContent
-                        .trim()
+                        .lastElementChild.textContent.trim()
         let itemPrice = itemElem    
                         .querySelectorAll('[data-component="unitPrice"]')[0]
-                        .firstElementChild
-                        .firstChild
-                        .textContent.trim()
+                        .lastElementChild.firstChild.textContent.trim()
         
         items_dict[itemTitle] = {
-            'unit_price': Number(itemPrice.replace(/[^0-9.-]+/g,""))
+            'unit_price': moneyStrToCents(itemPrice)
         }
     }
 

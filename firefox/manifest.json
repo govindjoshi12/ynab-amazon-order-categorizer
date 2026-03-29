@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Amazon Order Extractor",
+  "version": "1.0",
+  "description": "Extracts amazon order info from the order page.",
+  "icons": {
+    "48": "icons/border-48.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "beastify@mozilla.org",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  },
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "host_permissions": [
+      "*://www.amazon.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://www.amazon.com/*"],
+      "js": ["order_extractor.js"]
+    }
+  ]
+}

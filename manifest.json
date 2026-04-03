@@ -14,12 +14,15 @@
       }
     }
   },
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "identity", "storage"],
   "host_permissions": [
       "*://www.amazon.com/*"
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup/popup.html"
+  },
+  "background": {
+    "scripts": ["background/background.js", "background/auth.js"]
   },
   "content_scripts": [
     {

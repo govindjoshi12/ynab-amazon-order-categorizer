@@ -1,5 +1,3 @@
-const browserAPI = window.browser || window.chrome;
-
 async function requestData() {
   const [tab] = await browserAPI.tabs.query({
     active: true,
@@ -42,12 +40,15 @@ function adjustPricesByTotal(items_dict, item_subtotal, grand_total) {
   for(let i = 0; i < len; i++) {
     if(i < len - 1) {
       let item_price = items_dict[keys[i]]['unit_price']
+      console.log(item_price)
       let adjusted_price = Math.round((item_price / item_subtotal) * diff) + item_price
+      console.log(adjusted_price)
       items_dict[keys[i]]['adjusted_price'] = adjusted_price
       running_total += adjusted_price
     } else {
       // account for penny drift
       let adjusted_price = grand_total - running_total
+      console.log(adjusted_price)
       console.log(grand_total, running_total + adjusted_price)
       items_dict[keys[i]]['adjusted_price'] = adjusted_price
     }

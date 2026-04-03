@@ -3,7 +3,7 @@ document.body.style.border = '10px solid red'
 console.log("Hello from the extension.")
 
 function moneyStrToCents(moneyStr) {
-    return Number(moneyStr.replace(/[^0-9.-]+/g,"")) * 100;
+    return Math.round(Number(moneyStr.replace(/[^0-9.-]+/g,"")) * 100);
 }
 
 function extractOrder() {

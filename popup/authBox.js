@@ -14,7 +14,7 @@ export async function buildAuthBox() {
         { action: ACTIONS['GET_TOKEN_INFO'] }
     )
 
-    if(token_info['access_token']) {
+    if(token_info['access_token'] && token_info['expires_at'] > Date.now()) {
         button.textContent = "Refresh Credentials"
         // Since the auth_box code re-runs everytime the popup is re-opened, we don't need to explicitly
         // create logic to refresh this text every few minutes. It is not likely that users spend more

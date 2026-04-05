@@ -13,7 +13,6 @@ const TOKEN_TYPE_KEY = 'token_type'
 const EXPIRES_AT_KEY = 'expires_at'
 const PLANS_KEY = 'plans'
 const MISSING_VALUE = 'MISSING'
-const REAUTH_MINS_BEFORE_EXPIRATION = 5
 
 async function localGet(key) {
 	let result = await browserAPI.storage.local.get({[key]: MISSING_VALUE})
@@ -54,6 +53,8 @@ async function authorizeYnab() {
 		interactive: true
 	})
 
+	await browserAPI.storage.local.clear()
+
 	let paramsString = responseUrl.substring(responseUrl.indexOf('#') + 1)
 	let searchParams = new URLSearchParams(paramsString)
 	
@@ -88,25 +89,34 @@ async function authorizedFetch(endpoint) {
 }
 
 async function getPlans() {
-	let plans = localGet(PLANS_KEY)
+	let plans = await localGet(PLANS_KEY)
 	if(!plans) {
+		console.log("Calling the API for plans.")
         const plansEndpoint =  `${YNAB_BASE_URL}/plans`
 		const response = await authorizedFetch(plansEndpoint)
-		plans = response.data.plans
+		const json = await response.json()
+		plans = json.data.plans
+		localStore(PLANS_KEY, plans)
 	}
 	return plans
 }
 
+async function getAllTransactions(plan_id, since_date) {
+    let endpoint = `${YNAB_BASE_URL}/${plan_id}?since_date=${since_date}`
+	return await (await authorizedFetch(endpoint)).json()
+}
+
 // Message listener
-browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
+browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => 
+{
   	if (message.action === ACTIONS['GET_TOKEN_INFO']) {
 		getTokenInfo().then(data => sendResponse(data));
 		return true;
 	} else if(message.action === ACTIONS['USE_AUTHORIZED_FETCH']) {
 		authorizedFetch(message.endpoint).then(
-			(response) => ({
+			async (response) => ({
 				success: true,
-				response: sendResponse(response.json())
+				response: sendResponse(await response.json())
 			}),
 			(error) => ({
 				success: false,
@@ -121,6 +131,7 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		isTokenValid().then(data => sendResponse(data))
 		return true;
 	} else if(message.action === ACTIONS['GET_PLANS']) {
+		getPlans().then(data => sendResponse(data))
 		return true;
 	}
   	return false;

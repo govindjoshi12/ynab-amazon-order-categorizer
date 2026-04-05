@@ -1,4 +1,6 @@
-import { browserAPI } from "./util.js";
+import { browserAPI, renderCentsAsDollars } from "./util.js";
+import { state } from "./state.js";
+
 
 async function requestData() {
   const [tab] = await browserAPI.tabs.query({
@@ -8,7 +10,7 @@ async function requestData() {
 
   const response = await browserAPI.tabs.sendMessage(
     tab.id,
-    { action: "extractOrder" }
+    { action: "EXTRACT_ORDER" }
   );
 
   return response.orderDetails
@@ -17,13 +19,6 @@ async function requestData() {
 function roundTo10sPower(num, pow) {
   let tens_power = Math.pow(10, pow)
   return Math.round(num * tens_power) / tens_power
-}
-
-function renderCentsAsDollars(cents) {
-  let centsStr = String(cents).padStart(3, '0')
-  let dollarComponent = centsStr.substring(0, centsStr.length - 2)
-  let centComponent = centsStr.substring(centsStr.length - 2) 
-  return `\$${dollarComponent}.${centComponent}`
 }
 
 function adjustPricesByTotal(items_dict, item_subtotal, grand_total) {
@@ -61,11 +56,13 @@ function adjustPricesByTotal(items_dict, item_subtotal, grand_total) {
 
 async function createOrderHTML() {
   let orderDetails = await requestData();
+  state.order_details = orderDetails
 
-  let items_subtotal = orderDetails.summary['Item(s) Subtotal:']
-  let grand_total = orderDetails.summary['Grand Total:']
+  let items_subtotal = orderDetails.summary['item_subtotal']
+  let grand_total = orderDetails.summary['grand_total']
   let diff = roundTo10sPower(grand_total - items_subtotal, 2)
-  items = adjustPricesByTotal(orderDetails.items, items_subtotal, grand_total)
+  console.log(diff)
+  let items = adjustPricesByTotal(orderDetails.items, items_subtotal, grand_total)
   const table = document.createElement("table")
 
   let tableHeader = document.createElement('tr')
@@ -123,7 +120,6 @@ async function getActiveTabUrl() {
 export async function buildOrderTable() {
 
   let activeTabUrl = await getActiveTabUrl();
-  console.log(activeTabUrl)
   const matcher = new RegExp(/.*:\/\/www\.amazon\.com\/your-orders\/order-details\?orderID=.*/, "g");
   let match = matcher.test(activeTabUrl)
 
@@ -137,6 +133,5 @@ export async function buildOrderTable() {
       divElem.appendChild(await createOrderHTML())
   }
 
-  console.log(document.getElementById('data-display'))
   document.getElementById('data-display').appendChild(divElem)
 }

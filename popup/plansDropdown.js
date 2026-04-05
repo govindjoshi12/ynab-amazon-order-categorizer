@@ -15,25 +15,29 @@ export async function buildPlansDropdown() {
     const plans_select = getAndClearElementById('plans-dropdown')
 
     const placeholderOption = document.createElement('option')
-    placeholderOption.textContent = "Connect to YNAB."
-    placeholderOption.setAttribute('disabled', 'true')
-    placeholderOption.setAttribute('selected', 'true')
-    placeholderOption.setAttribute('hidden', 'true')
+
     plans_select.appendChild(placeholderOption)
     if(isTokenValid()) {
-        const plans = await browserAPI.runtime.sendMessage(
-            { action: ACTIONS['GET_PLANS'] }
-        )
+        const plans = await browserAPI.runtime.sendMessage({ 
+            action: ACTIONS['GET_PLANS'],
+        })
         console.log(plans)
 
-        // TODO: Use plan id to make future api calls
-        placeholderOption.textContent = "Select Plan"
+        placeholderOption.textContent = "Default"
+        placeholderOption.setAttribute("value", "default")
+        placeholderOption.setAttribute("selected", "true")
+        state.selected_plan_id = "default"
+
         for(let i = 0; i < plans.length; i++) {
-            let name = plans[i].name
             let option = document.createElement('option')
             option.text = plans[i].name
             option.value = plans[i].id
             plans_select.appendChild(option)
         }
+    } else {
+        placeholderOption.textContent = "Connect to YNAB."
+        placeholderOption.setAttribute('disabled', 'true')
+        placeholderOption.setAttribute('selected', 'true')
+        placeholderOption.setAttribute('hidden', 'true')
     }
 }

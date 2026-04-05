@@ -6,17 +6,17 @@ import { buildMatchingOrderBox } from "./matchingOrder.js";
 import { ACTIONS } from "../messages.js";
 
 // Build and refresh Components
-function onStartup() {
-    buildAuthBox();
-    buildPlansDropdown();
-    buildOrderTable();
-    buildMatchingOrderBox();
+async function onStartup() {
+    await buildAuthBox();
+    await buildPlansDropdown();
+    await buildOrderTable();
+    await buildMatchingOrderBox();
 }
 
-function onAuth() {
-    buildAuthBox();
-    buildPlansDropdown();
-    buildMatchingOrderBox();
+async function onAuth() {
+    await buildAuthBox();
+    await buildPlansDropdown();
+    await buildMatchingOrderBox();
 }
 
 browserAPI.runtime.onMessage.addListener((message) => {

@@ -12,6 +12,7 @@ const ACCESS_TOKEN_KEY = 'access_token'
 const TOKEN_TYPE_KEY = 'token_type'
 const EXPIRES_AT_KEY = 'expires_at'
 const PLANS_KEY = 'plans'
+const CATEGORIES_KEY = 'categories'
 const MISSING_VALUE = 'MISSING'
 
 async function localGet(key) {
@@ -101,9 +102,22 @@ async function getPlans() {
 	return plans
 }
 
-async function getAllTransactions(plan_id, since_date) {
-    let endpoint = `${YNAB_BASE_URL}/${plan_id}?since_date=${since_date}`
-	return await (await authorizedFetch(endpoint)).json()
+async function getCategories(plan_id) {
+
+	let categories = await localGet(CATEGORIES_KEY)
+	if(!categories || !categories[plan_id]) {
+		console.log("Calling the API for plans.")
+    	const endpoint = `${YNAB_BASE_URL}/plans/${plan_id}/categories`
+		const response = await authorizedFetch(endpoint)
+		const json = await response.json()
+		categories = {
+			[plan_id]: json.data.category_groups,
+			...categories
+		}
+		localStore(CATEGORIES_KEY, categories)
+	}
+	return categories[plan_id]
+
 }
 
 // Message listener
@@ -132,6 +146,9 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) =>
 		return true;
 	} else if(message.action === ACTIONS['GET_PLANS']) {
 		getPlans().then(data => sendResponse(data))
+		return true;
+	} else if(message.action === ACTIONS['GET_CATEGORIES']) {
+		getCategories(message.plan_id).then(data => sendResponse(data))
 		return true;
 	}
   	return false;

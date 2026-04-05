@@ -1,5 +1,6 @@
 import { browserAPI, renderCentsAsDollars } from "./util.js";
 import { state } from "./state.js";
+import { getCategoriesDropdown } from "./categoriesDropdown.js";
 
 
 async function requestData() {
@@ -58,7 +59,7 @@ async function createOrderHTML() {
   let orderDetails = await requestData();
   state.order_details = orderDetails
 
-  let items_subtotal = orderDetails.summary['item_subtotal']
+  let items_subtotal = orderDetails.summary['items_subtotal']
   let grand_total = orderDetails.summary['grand_total']
   let diff = roundTo10sPower(grand_total - items_subtotal, 2)
   console.log(diff)
@@ -70,6 +71,7 @@ async function createOrderHTML() {
     <th>Item</th>
     <th>Unit Price</th>
     <th>Adjusted Price</th>
+    <th>Category</th>
   `
   table.appendChild(tableHeader)
 
@@ -85,6 +87,7 @@ async function createOrderHTML() {
       <td>${item.unit_price}</td>
       <td>${item.adjusted_price}</td>
     `
+    row.appendChild(await getCategoriesDropdown())
     table.appendChild(row)
   }
 
@@ -93,6 +96,7 @@ async function createOrderHTML() {
     <td>Taxes, Shipping, and Other Fees</td>
     <td>${renderCentsAsDollars(diff)}</td>
     <td>${renderCentsAsDollars(0)}</td>
+    <td></td>
   `
 
   let totals = document.createElement('tr')
@@ -100,6 +104,7 @@ async function createOrderHTML() {
     <td>Grand Total</td>
     <td>${renderCentsAsDollars(grand_total)}</td>
     <td>${renderCentsAsDollars(grand_total)}</td>
+    <td></td>
   `
 
   table.appendChild(additionalFees)
@@ -128,9 +133,13 @@ export async function buildOrderTable() {
       divElem.innerHTML = '<h1>Please navigate to an amazon orders page.</h1>'
   } else {
       let notif = document.createElement('span')
-      notif.innerHTML = '<h1>Order Found!</h1>'
+      notif.innerHTML = '<h3>Order Found!</h3>'
       divElem.appendChild(notif)
-      divElem.appendChild(await createOrderHTML())
+      let table = await createOrderHTML()
+      let orderNumberElem = document.createElement('span')
+      orderNumberElem.textContent = `Order #${state.order_details.order_id}`
+      divElem.appendChild(orderNumberElem)
+      divElem.appendChild(table)
   }
 
   document.getElementById('data-display').appendChild(divElem)

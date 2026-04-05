@@ -7,7 +7,7 @@ function moneyStrToCents(moneyStr) {
 }
 
 internal_key_map = {
-    "Items(s) Subtotal:": "items_subtotal",
+    "Item(s) Subtotal:": "items_subtotal",
     "Grand Total:": "grand_total",
     "Shipping & Handling:": "shipping",
     "Free Shipping:": "free_shipping",
@@ -59,12 +59,12 @@ function extractOrder() {
                         .textContent
     let orderDateTimestamp = new Date(orderDateText)
 
-    let orderId = document.querySelectorAll('[data-component="orderDate"]')[0]
+    let orderId = document.querySelectorAll('[data-component="orderId"]')[0]
                 .querySelector('span')
                 .textContent
 
     return {
-        'order_date_iso': orderDateTimestamp.toISOString(),
+        'order_date': orderDateTimestamp.toISOString(),
         'order_id': orderId,
         'summary': summary_dict,
         'items': items_dict

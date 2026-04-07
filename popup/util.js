@@ -11,13 +11,17 @@ export function getAndClearElementById(id) {
 }
 
 export async function isTokenValid() {
-    const valid = await browserAPI.runtime.sendMessage(
-        { action: ACTIONS['IS_TOKEN_VALID'] }
+    const auth_status = await browserAPI.runtime.sendMessage(
+        { action: ACTIONS['GET_AUTH_STATUS'] }
     )
-    return valid
+    return auth_status['is_authorized']
 }
 
-export function renderCentsAsDollars(cents) {
+export function renderCentsAsMilliunits(milliunits) {
+    // Milliunits should almost always end in 0 in the ones place, 
+    // but we add the rounding for safety
+    let cents = Math.round(milliunits / 10)
+    console.log(milliunits, cents)
     let centsStr = String(cents).padStart(3, '0')
     let dollarComponent = centsStr.substring(0, centsStr.length - 2)
     let centComponent = centsStr.substring(centsStr.length - 2) 

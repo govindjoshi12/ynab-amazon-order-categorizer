@@ -42,6 +42,16 @@ async function isTokenValid() {
 	return token_dict[ACCESS_TOKEN_KEY] && Date.now() < token_dict[EXPIRES_AT_KEY]
 }
 
+async function getAuthStatus() {
+	let token_dict = await getTokenInfo()
+	let isAuthorized = token_dict[ACCESS_TOKEN_KEY] 
+						&& Date.now() < token_dict[EXPIRES_AT_KEY]
+	return {
+		is_authorized: isAuthorized,
+		expires_at: token_dict[EXPIRES_AT_KEY]
+	}
+}
+
 async function authorizeYnab() {
 
 	const authUrl =
@@ -149,6 +159,9 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) =>
 		return true;
 	} else if(message.action === ACTIONS['GET_CATEGORIES']) {
 		getCategories(message.plan_id).then(data => sendResponse(data))
+		return true;
+	} else if(message.action === ACTIONS['GET_AUTH_STATUS']) {
+		getAuthStatus().then(data => sendResponse(data))
 		return true;
 	}
   	return false;

@@ -2,8 +2,8 @@ document.body.style.border = '10px solid red'
 
 console.log("Hello from the extension.")
 
-function moneyStrToCents(moneyStr) {
-    return Math.round(Number(moneyStr.replace(/[^0-9.-]+/g,"")) * 100);
+function moneyStrToMilliunits(moneyStr) {
+    return Math.round(Number(moneyStr.replace(/[^0-9.-]+/g,"")) * 1000);
 }
 
 internal_key_map = {
@@ -35,7 +35,7 @@ function extractOrder() {
                         .querySelector('span')
                         .textContent.trim()
         
-        summary_dict[internal_key_map[labelText]] = moneyStrToCents(costText)
+        summary_dict[internal_key_map[labelText]] = moneyStrToMilliunits(costText)
     }
 
     let itemsList = document.querySelectorAll('[data-component="purchasedItemsRightGrid"]');
@@ -50,7 +50,7 @@ function extractOrder() {
                         .lastElementChild.firstChild.textContent.trim()
         
         items_dict[itemTitle] = {
-            'unit_price': moneyStrToCents(itemPrice)
+            'unit_price': moneyStrToMilliunits(itemPrice)
         }
     }
 

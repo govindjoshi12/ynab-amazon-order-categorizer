@@ -1,22 +1,16 @@
 import { browserAPI } from "./util.js";
-import { buildAuthBox } from "./authBox.js";
-import { buildPlansDropdown } from "./plansDropdown.js";
-import { buildOrderTable } from "./orderTable.js";
-import { buildMatchingOrderBox } from "./matchingOrder.js";
 import { ACTIONS } from "../messages.js";
+import { App } from "./app.js";
 
 // Build and refresh Components
 async function onStartup() {
-    await buildAuthBox();
-    await buildPlansDropdown();
-    await buildOrderTable();
-    await buildMatchingOrderBox();
+    const app = await App()
+    document.getElementById('root').appendChild(app)
 }
 
 async function onAuth() {
-    await buildAuthBox();
-    await buildPlansDropdown();
-    await buildMatchingOrderBox();
+    const app = await App()
+    document.getElementById('root').appendChild(app)
 }
 
 browserAPI.runtime.onMessage.addListener((message) => {

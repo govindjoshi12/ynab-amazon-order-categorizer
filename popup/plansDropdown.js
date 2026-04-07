@@ -1,22 +1,22 @@
 import { browserAPI, getAndClearElementById, isTokenValid } from "./util.js"
 import { ACTIONS } from "../messages.js"
 import { state } from "./state.js"
-import { buildMatchingOrderBox } from "./matchingOrder.js"
 
-document.getElementById('plans-dropdown').addEventListener(
-    'change',
-    (event) => {
-        state.selected_plan_id = event.target.value
-        buildMatchingOrderBox();
-    }
-)
 
-export async function buildPlansDropdown() {
-    const plans_select = getAndClearElementById('plans-dropdown')
+export const PlansDropdown = async () => {
+    const plansDropdown = document.createElement('select')
+
+    plansDropdown.addEventListener(
+        'change',
+        (event) => {
+            state.selected_plan_id = event.target.value
+        }
+    )
+
 
     const placeholderOption = document.createElement('option')
 
-    plans_select.appendChild(placeholderOption)
+    plansDropdown.appendChild(placeholderOption)
     if(isTokenValid()) {
         const plans = await browserAPI.runtime.sendMessage({ 
             action: ACTIONS['GET_PLANS'],
@@ -32,7 +32,7 @@ export async function buildPlansDropdown() {
             let option = document.createElement('option')
             option.text = plans[i].name
             option.value = plans[i].id
-            plans_select.appendChild(option)
+            plansDropdown.appendChild(option)
         }
     } else {
         placeholderOption.textContent = "Connect to YNAB."
@@ -40,4 +40,6 @@ export async function buildPlansDropdown() {
         placeholderOption.setAttribute('selected', 'true')
         placeholderOption.setAttribute('hidden', 'true')
     }
+
+    return plansDropdown
 }

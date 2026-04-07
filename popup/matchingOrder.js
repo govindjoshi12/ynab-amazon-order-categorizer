@@ -1,4 +1,4 @@
-import { browserAPI, YNAB_BASE_URL, isTokenValid, renderCentsAsDollars } from "./util.js";
+import { browserAPI, YNAB_BASE_URL, isTokenValid } from "./util.js";
 import { state } from "./state.js";
 import { ACTIONS } from "../messages.js";
 
@@ -19,16 +19,15 @@ async function getTransactions() {
     return response.data.transactions
 }
 
-export async function buildMatchingOrderBox() {
-    
-    const matchingOrderElem = document.getElementById('matching-order')
+export const MatchingOrderBox = async () => {
+    const matchingOrderElem = document.createElement('div')
     
     console.log(state)
     if(isTokenValid() && state.order_details && state.selected_plan_id) {
         const transactions = await getTransactions()
         let end_date = new Date(state.order_details.order_date)
         end_date.setDate(end_date.getDate() + 10)
-        let grand_total_milliunits = -1 * state.order_details.summary['grand_total'] * 10
+        let grand_total_milliunits = -1 * state.order_details.summary['grand_total']
 
         const filtered_transactions = transactions.filter((item) => (
             Date.parse(item.date) < end_date.getTime()
@@ -48,5 +47,9 @@ export async function buildMatchingOrderBox() {
                 Payee: ${item.payee_name}
             `
         }
-    } 
+    } else {
+        matchingOrderElem.textContent = "Connect to YNAB to see a matching order."
+    }
+
+    return matchingOrderElem
 }

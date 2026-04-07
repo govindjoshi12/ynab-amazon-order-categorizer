@@ -2,7 +2,7 @@ import { browserAPI, isTokenValid } from "./util.js";
 import { state } from "./state.js"
 import { ACTIONS } from "../messages.js";
 
-export async function getCategoriesDropdown() {
+export async function CategoriesDropdown(categoryClickHandler) {
 
     const dropdown = document.createElement('select')
 
@@ -25,6 +25,8 @@ export async function getCategoriesDropdown() {
             }
             dropdown.appendChild(optgroup)
         }
+
+        dropdown.addEventListener('change', categoryClickHandler)
     } else {
         dropdown.textContent = "-"
     }

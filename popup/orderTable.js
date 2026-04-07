@@ -1,6 +1,7 @@
-import { browserAPI, renderCentsAsDollars } from "./util.js";
+import { browserAPI, renderCentsAsMilliunits } from "./util.js";
 import { state } from "./state.js";
-import { getCategoriesDropdown } from "./categoriesDropdown.js";
+import { CategoriesDropdown } from "./CategoriesDropdown.js";
+import { submitButton } from "./submit.js";
 
 
 async function requestData() {
@@ -64,6 +65,10 @@ async function createOrderHTML() {
   let diff = roundTo10sPower(grand_total - items_subtotal, 2)
   console.log(diff)
   let items = adjustPricesByTotal(orderDetails.items, items_subtotal, grand_total)
+
+  // TODO: make this better 
+  state.order_details.items = items
+
   const table = document.createElement("table")
 
   let tableHeader = document.createElement('tr')
@@ -78,8 +83,8 @@ async function createOrderHTML() {
   for (const [key, value] of Object.entries(items)) {
     let item = {
       'title': key,
-      'unit_price': renderCentsAsDollars(value.unit_price),
-      'adjusted_price': renderCentsAsDollars(value.adjusted_price)
+      'unit_price': renderCentsAsMilliunits(value.unit_price),
+      'adjusted_price': renderCentsAsMilliunits(value.adjusted_price)
     }
     let row = document.createElement('tr')
     row.innerHTML = `
@@ -87,23 +92,29 @@ async function createOrderHTML() {
       <td>${item.unit_price}</td>
       <td>${item.adjusted_price}</td>
     `
-    row.appendChild(await getCategoriesDropdown())
+
+    const categoryClickHandler = (event) => {
+      state.order_details.items[key].category_id = event.target.value
+      console.log(state.order_details.items[key])
+    }
+
+    row.appendChild(await CategoriesDropdown(categoryClickHandler))
     table.appendChild(row)
   }
 
   let additionalFees = document.createElement('tr')
   additionalFees.innerHTML = `
     <td>Taxes, Shipping, and Other Fees</td>
-    <td>${renderCentsAsDollars(diff)}</td>
-    <td>${renderCentsAsDollars(0)}</td>
+    <td>${renderCentsAsMilliunits(diff)}</td>
+    <td>${renderCentsAsMilliunits(0)}</td>
     <td></td>
   `
 
   let totals = document.createElement('tr')
   totals.innerHTML = `
     <td>Grand Total</td>
-    <td>${renderCentsAsDollars(grand_total)}</td>
-    <td>${renderCentsAsDollars(grand_total)}</td>
+    <td>${renderCentsAsMilliunits(grand_total)}</td>
+    <td>${renderCentsAsMilliunits(grand_total)}</td>
     <td></td>
   `
 
@@ -122,8 +133,7 @@ async function getActiveTabUrl() {
   return tabs[0].url;
 }
 
-export async function buildOrderTable() {
-
+export const OrderTable = async () => {
   let activeTabUrl = await getActiveTabUrl();
   const matcher = new RegExp(/.*:\/\/www\.amazon\.com\/your-orders\/order-details\?orderID=.*/, "g");
   let match = matcher.test(activeTabUrl)
@@ -139,8 +149,10 @@ export async function buildOrderTable() {
       let orderNumberElem = document.createElement('span')
       orderNumberElem.textContent = `Order #${state.order_details.order_id}`
       divElem.appendChild(orderNumberElem)
+      let button = await submitButton()
+      divElem.appendChild(button)
       divElem.appendChild(table)
   }
 
-  document.getElementById('data-display').appendChild(divElem)
+  return divElem
 }

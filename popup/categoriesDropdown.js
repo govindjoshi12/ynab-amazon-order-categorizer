@@ -2,11 +2,11 @@ import { browserAPI, isTokenValid } from "./util.js";
 import { state } from "./state.js"
 import { ACTIONS } from "../messages.js";
 
-export async function CategoriesDropdown(categoryClickHandler) {
+export async function CategoriesDropdown(currentCategoryId, categoryClickHandler) {
 
     const dropdown = document.createElement('select')
 
-    if(isTokenValid()) {
+    if(await isTokenValid()) {
         const category_groups = await browserAPI.runtime.sendMessage({
             action: ACTIONS['GET_CATEGORIES'],
             plan_id: state.selected_plan_id
@@ -21,6 +21,11 @@ export async function CategoriesDropdown(categoryClickHandler) {
                 let opt = document.createElement('option')
                 opt.text = cat.name
                 opt.value = cat.id
+
+                if(opt.value === currentCategoryId) {
+                    opt.selected = true
+                }
+
                 optgroup.appendChild(opt)
             }
             dropdown.appendChild(optgroup)

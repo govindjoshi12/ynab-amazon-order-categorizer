@@ -85,7 +85,7 @@ async function authorizeYnab() {
 
 async function authorizedFetch(endpoint) {
 	const token_info = await getTokenInfo()
-	if(!token_info['access_token'] || Date.now() > token_info[EXPIRES_AT_KEY]) {
+	if(!token_info[ACCESS_TOKEN_KEY] || Date.now() > token_info[EXPIRES_AT_KEY]) {
 		throw new Error('Unauthorized. Authorize application to call YNAB API.')
 	} else {
 		const response = fetch(endpoint, {

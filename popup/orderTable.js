@@ -39,16 +39,12 @@ function adjustPricesByTotal(items_dict, item_subtotal, grand_total) {
   for(let i = 0; i < len; i++) {
     if(i < len - 1) {
       let item_price = items_dict[keys[i]]['unit_price']
-      console.log(item_price)
       let adjusted_price = Math.round((item_price / item_subtotal) * diff) + item_price
-      console.log(adjusted_price)
       items_dict[keys[i]]['adjusted_price'] = adjusted_price
       running_total += adjusted_price
     } else {
       // account for penny drift
       let adjusted_price = grand_total - running_total
-      console.log(adjusted_price)
-      console.log(grand_total, running_total + adjusted_price)
       items_dict[keys[i]]['adjusted_price'] = adjusted_price
     }
   }
@@ -57,17 +53,20 @@ function adjustPricesByTotal(items_dict, item_subtotal, grand_total) {
 }
 
 async function createOrderHTML() {
-  let orderDetails = await requestData();
-  state.order_details = orderDetails
+  let orderDetails = null;
+  if(!state.order_details) {
+    orderDetails = await requestData();
+    let items_subtotal = orderDetails.summary['items_subtotal']
+    let grand_total = orderDetails.summary['grand_total']
+    orderDetails.items = adjustPricesByTotal(orderDetails.items, items_subtotal, grand_total)
+    state.order_details = orderDetails
+  } else {
+    orderDetails = state.order_details
+  }
 
-  let items_subtotal = orderDetails.summary['items_subtotal']
-  let grand_total = orderDetails.summary['grand_total']
-  let diff = roundTo10sPower(grand_total - items_subtotal, 2)
-  console.log(diff)
-  let items = adjustPricesByTotal(orderDetails.items, items_subtotal, grand_total)
-
-  // TODO: make this better 
-  state.order_details.items = items
+  let items_subtotal = state.order_details.summary['items_subtotal']
+  let grand_total = state.order_details.summary['grand_total'] 
+  let feeAmt = grand_total - items_subtotal
 
   const table = document.createElement("table")
 
@@ -80,7 +79,7 @@ async function createOrderHTML() {
   `
   table.appendChild(tableHeader)
 
-  for (const [key, value] of Object.entries(items)) {
+  for (const [key, value] of Object.entries(state.order_details.items)) {
     let item = {
       'title': key,
       'unit_price': renderCentsAsMilliunits(value.unit_price),
@@ -94,18 +93,23 @@ async function createOrderHTML() {
     `
 
     const categoryClickHandler = (event) => {
-      state.order_details.items[key].category_id = event.target.value
-      console.log(state.order_details.items[key])
+      // Proxy handler only intercepts  changes to underlying object's top level fields
+      let newOrderDetails = {
+        ...state.order_details
+      }
+      newOrderDetails.items[key].category_id = event.target.value
+      state.order_details = newOrderDetails
     }
 
-    row.appendChild(await CategoriesDropdown(categoryClickHandler))
+    let currentCategoryId = value.category_id
+    row.appendChild(await CategoriesDropdown(currentCategoryId, categoryClickHandler))
     table.appendChild(row)
   }
 
   let additionalFees = document.createElement('tr')
   additionalFees.innerHTML = `
     <td>Taxes, Shipping, and Other Fees</td>
-    <td>${renderCentsAsMilliunits(diff)}</td>
+    <td>${renderCentsAsMilliunits(feeAmt)}</td>
     <td>${renderCentsAsMilliunits(0)}</td>
     <td></td>
   `

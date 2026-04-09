@@ -22,8 +22,7 @@ async function getTransactions() {
 export const MatchingOrderBox = async () => {
     const matchingOrderElem = document.createElement('div')
     
-    console.log(state)
-    if(isTokenValid() && state.order_details && state.selected_plan_id) {
+    if(await isTokenValid() && state.order_details && state.selected_plan_id) {
         const transactions = await getTransactions()
         let end_date = new Date(state.order_details.order_date)
         end_date.setDate(end_date.getDate() + 10)

@@ -21,7 +21,6 @@ export function renderCentsAsMilliunits(milliunits) {
     // Milliunits should almost always end in 0 in the ones place, 
     // but we add the rounding for safety
     let cents = Math.round(milliunits / 10)
-    console.log(milliunits, cents)
     let centsStr = String(cents).padStart(3, '0')
     let dollarComponent = centsStr.substring(0, centsStr.length - 2)
     let centComponent = centsStr.substring(centsStr.length - 2) 

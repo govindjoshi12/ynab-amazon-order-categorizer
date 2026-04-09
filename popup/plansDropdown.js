@@ -17,21 +17,28 @@ export const PlansDropdown = async () => {
     const placeholderOption = document.createElement('option')
 
     plansDropdown.appendChild(placeholderOption)
-    if(isTokenValid()) {
+    if(await isTokenValid()) {
         const plans = await browserAPI.runtime.sendMessage({ 
             action: ACTIONS['GET_PLANS'],
         })
-        console.log(plans)
 
-        placeholderOption.textContent = "Default"
-        placeholderOption.setAttribute("value", "default")
-        placeholderOption.setAttribute("selected", "true")
-        state.selected_plan_id = "default"
+        placeholderOption.text = "Default"
+        placeholderOption.id = "default"
+        
+        if(!state.selected_plan_id) {
+            state.selected_plan_id = "default"
+            placeholderOption.setAttribute("selected", "true")
+        }
 
         for(let i = 0; i < plans.length; i++) {
             let option = document.createElement('option')
             option.text = plans[i].name
             option.value = plans[i].id
+
+            if(option.value === state.selected_plan_id) {
+                option.setAttribute('selected', 'true')
+            }
+
             plansDropdown.appendChild(option)
         }
     } else {

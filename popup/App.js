@@ -6,7 +6,7 @@ import { MatchingOrderBox } from "./MatchingOrder.js";
 import { OrderTable } from "./OrderTable.js";
 
 export const App = async () => {
-    const root = document.createElement('root')
+    const root = document.createElement('div')
 
     const authBox = await AuthBox()
     const plansDropdown = await PlansDropdown()

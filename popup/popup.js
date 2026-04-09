@@ -3,19 +3,17 @@ import { ACTIONS } from "../messages.js";
 import { App } from "./app.js";
 
 // Build and refresh Components
-async function onStartup() {
+export async function onStartup() {
     const app = await App()
+    document.getElementById('root').innerHTML = ""
     document.getElementById('root').appendChild(app)
 }
 
-async function onAuth() {
-    const app = await App()
-    document.getElementById('root').appendChild(app)
-}
-
+// rebuild app on auth or state change
 browserAPI.runtime.onMessage.addListener((message) => {
 if (message.action === ACTIONS['AUTH_FLOW_COMPLETE']) {
-    onAuth();
+    onStartup();
   }
 });
+
 onStartup();

@@ -6,9 +6,7 @@ export async function submitButton() {
     button.textContent = "Submit"
 
     let valid = true
-    console.log(state.order_details.items)
     for(const [key, value] of Object.entries(state.order_details.items)) {
-        console.log(key)
         if(!state.order_details.items[key].category_id) {
             valid = false;
             break

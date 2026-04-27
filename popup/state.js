@@ -12,3 +12,5 @@ const handler = {
 };
 
 export const state = new Proxy(_state, handler);
+
+export const abortController = new AbortController();

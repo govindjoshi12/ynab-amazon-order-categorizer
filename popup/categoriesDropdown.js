@@ -1,5 +1,5 @@
 import { browserAPI, isTokenValid } from "./util.js";
-import { state } from "./state.js"
+import { abortController, state } from "./state.js"
 import { ACTIONS } from "../messages.js";
 
 export async function CategoriesDropdown(currentCategoryId, categoryClickHandler) {
@@ -31,7 +31,9 @@ export async function CategoriesDropdown(currentCategoryId, categoryClickHandler
             dropdown.appendChild(optgroup)
         }
 
-        dropdown.addEventListener('change', categoryClickHandler)
+        dropdown.addEventListener('change', categoryClickHandler, 
+            { signal: abortController.signal }
+        )
     } else {
         dropdown.textContent = "-"
     }

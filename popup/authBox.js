@@ -1,16 +1,21 @@
 import { browserAPI } from "./util.js"
 import { ACTIONS } from "../messages.js"
+import { abortController } from "./state.js"
 
 export const AuthBox = async () => {
     const authBox = document.createElement('div')
     const button = document.createElement('button')
     const infodiv = document.createElement('div')
 
-    button.addEventListener('click', async () => (
-        await browserAPI.runtime.sendMessage(
-            { action: ACTIONS['AUTHORIZE_YNAB'] }
-        )
-    ))
+    button.addEventListener(
+        'click', 
+        async () => (
+            await browserAPI.runtime.sendMessage(
+                { action: ACTIONS['AUTHORIZE_YNAB'] }
+            )
+        ),
+        { signal: abortController.signal }
+    )
 
     const auth_status = await browserAPI.runtime.sendMessage(
         { action: ACTIONS['GET_AUTH_STATUS'] }

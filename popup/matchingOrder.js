@@ -47,7 +47,7 @@ export const MatchingOrderBox = async () => {
             `
         }
     } else {
-        matchingOrderElem.textContent = "Connect to YNAB to see a matching order."
+        matchingOrderElem.textContent = "Connect to YNAB and/or navigate to an amazon order details page to find a matching order."
     }
 
     return matchingOrderElem

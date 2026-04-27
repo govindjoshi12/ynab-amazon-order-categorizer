@@ -83,20 +83,28 @@ async function authorizeYnab() {
 	browserAPI.runtime.sendMessage({ action: ACTIONS['AUTH_FLOW_COMPLETE'] })
 }
 
-async function authorizedFetch(endpoint) {
+async function authorizedFetch(input, init = {}) {
 	const token_info = await getTokenInfo()
-	if(!token_info[ACCESS_TOKEN_KEY] || Date.now() > token_info[EXPIRES_AT_KEY]) {
-		throw new Error('Unauthorized. Authorize application to call YNAB API.')
-	} else {
-		const response = fetch(endpoint, {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				"Authorization": `${token_info[TOKEN_TYPE_KEY]} ${token_info[ACCESS_TOKEN_KEY]}` 
-			},
-		})
-		return response
+
+	if (!token_info?.[ACCESS_TOKEN_KEY]) {
+		throw new Error("Missing access token")
 	}
+
+	if (Date.now() > token_info[EXPIRES_AT_KEY]) {
+		throw new Error("Access token expired")
+	}
+
+	const headers = new Headers(init.headers)
+
+	headers.set(
+		"Authorization",
+		`${token_info[TOKEN_TYPE_KEY]} ${token_info[ACCESS_TOKEN_KEY]}`
+	)
+
+	return fetch(input, {
+		...init,
+		headers,
+	})
 }
 
 async function getPlans() {

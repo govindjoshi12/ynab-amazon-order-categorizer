@@ -14,7 +14,7 @@ export async function submitButton() {
     }
 
     if(!valid) {
-        button.setAttribute('disabled', true)
+        button.disabled = true
     }
     return button
 }

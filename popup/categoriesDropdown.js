@@ -1,8 +1,11 @@
 import { browserAPI, isTokenValid } from "./util.js";
-import { abortController, state } from "./state.js"
+import { getSignal, state } from "./state.js"
 import { ACTIONS } from "../messages.js";
 
 export async function CategoriesDropdown(currentCategoryId, categoryClickHandler) {
+
+    // TODO: Remove credit card payments categories
+    // They are not accepted by YNAB's create/update APIs
 
     const dropdown = document.createElement('select')
 
@@ -31,8 +34,10 @@ export async function CategoriesDropdown(currentCategoryId, categoryClickHandler
             dropdown.appendChild(optgroup)
         }
 
-        dropdown.addEventListener('change', categoryClickHandler, 
-            { signal: abortController.signal }
+        dropdown.addEventListener(
+            'change', 
+            categoryClickHandler, 
+            { signal: getSignal() }
         )
     } else {
         dropdown.textContent = "-"

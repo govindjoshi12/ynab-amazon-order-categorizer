@@ -1,6 +1,6 @@
 import { browserAPI, getAndClearElementById, isTokenValid } from "./util.js"
 import { ACTIONS } from "../messages.js"
-import { abortController, state } from "./state.js"
+import { getSignal, state } from "./state.js"
 
 
 export const PlansDropdown = async () => {
@@ -12,7 +12,7 @@ export const PlansDropdown = async () => {
             state.selected_plan_id = event.target.value
         },
         {
-            signal: abortController.signal
+            signal: getSignal()
         }
     )
 

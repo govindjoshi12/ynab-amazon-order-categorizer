@@ -37,14 +37,29 @@ export const MatchingOrderBox = async () => {
             matchingOrderElem.textContent = "No match found in selected budget. Splitting transaction will create new transaction."
         } else {
             let item = filtered_transactions[0]
+
+            let split_str = !!item.subtransactions ? 'Already Split. Cannot update.' : 'Not split.'
+
             matchingOrderElem.innerHTML = `
                 Match found!<br/>
-                Transaction ID: ${item.id},<br>
+                Transaction ID: ${item.id},<br/>
+                Account ID: ${item.account_id},<br/>
                 Order amount: ${item.amount_formatted},<br/>
                 Order date: ${item.date},<br/> 
                 Category: ${item.category_name},<br/>
-                Payee: ${item.payee_name}
+                Payee: ${item.payee_name},<br/>
+                Split Transaction: ${split_str}
             `
+
+            // We need to insert the new fields without creating a new object
+            // The state proxy will intercept the state change, trigger a re-render,
+            // which will trigger the logic in the matching order component, causing
+            // a state change and an infinite loop
+            state.order_details.transaction_id = item.id,
+            state.order_details.payee_id = item.payee_id,
+            state.order_details.payee_name = item.payee_name
+            state.order_details.account_id = item.account_id
+            state.order_details.pre_split = !!item.subtransactions
         }
     } else {
         matchingOrderElem.textContent = "Connect to YNAB and/or navigate to an amazon order details page to find a matching order."

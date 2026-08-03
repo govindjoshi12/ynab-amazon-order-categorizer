@@ -13,4 +13,11 @@ const handler = {
 
 export const state = new Proxy(_state, handler);
 
-export const abortController = new AbortController();
+let _abortController = new AbortController();
+
+export const getSignal = () => _abortController.signal;
+
+export const resetAbortController = () => {
+    _abortController.abort(); // Cancel old listeners
+    _abortController = new AbortController(); // Create fresh signal for new listeners
+};

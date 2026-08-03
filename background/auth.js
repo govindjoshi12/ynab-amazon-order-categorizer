@@ -59,10 +59,23 @@ async function authorizeYnab() {
 		`&redirect_uri=${encodeURIComponent(redirectUri)}` +
 		`&response_type=token`
 
-	const responseUrl = await browserAPI.identity.launchWebAuthFlow({
-		url: authUrl,
-		interactive: true
-	})
+	let responseUrl = undefined;
+	try {
+		responseUrl = await browserAPI.identity.launchWebAuthFlow({
+			url: authUrl,
+			interactive: true
+		})
+	} catch {
+		// TODO: Unknown internal error
+	}
+
+	// TODO: User authentication failure
+	if(!responseUrl) {
+
+	}
+
+	// TODO: Send message to popup on auth failure
+	// Store most recent auth attempt status (success / failure)
 
 	await browserAPI.storage.local.clear()
 
@@ -121,7 +134,6 @@ async function getPlans() {
 }
 
 async function getCategories(plan_id) {
-
 	let categories = await localGet(CATEGORIES_KEY)
 	if(!categories || !categories[plan_id]) {
 		console.log("Calling the API for plans.")
@@ -135,7 +147,22 @@ async function getCategories(plan_id) {
 		localStore(CATEGORIES_KEY, categories)
 	}
 	return categories[plan_id]
+}
 
+async function updateTransaction(transaction, plan_id, transaction_id) {
+	let endpoint = `${YNAB_BASE_URL}/plans/${plan_id}/transactions`
+	if(transaction_id) {
+		endpoint += `/${transaction_id}`
+	}
+	return authorizedFetch(
+		endpoint, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(transaction)
+		}
+	)
 }
 
 // Message listener
@@ -170,6 +197,13 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) =>
 		return true;
 	} else if(message.action === ACTIONS['GET_AUTH_STATUS']) {
 		getAuthStatus().then(data => sendResponse(data))
+		return true;
+	} else if(message.action == ACTIONS['UPDATE_TRANSACTION']) {
+		updateTransaction(
+			message.transaction,
+			message.plan_id,
+			message.transaction_id
+		).then(data => sendResponse(data))
 		return true;
 	}
   	return false;

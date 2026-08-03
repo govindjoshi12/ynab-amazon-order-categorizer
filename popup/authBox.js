@@ -1,6 +1,6 @@
 import { browserAPI } from "./util.js"
 import { ACTIONS } from "../messages.js"
-import { abortController } from "./state.js"
+import { getSignal } from "./state.js"
 
 export const AuthBox = async () => {
     const authBox = document.createElement('div')
@@ -14,7 +14,7 @@ export const AuthBox = async () => {
                 { action: ACTIONS['AUTHORIZE_YNAB'] }
             )
         ),
-        { signal: abortController.signal }
+        { signal: getSignal() }
     )
 
     const auth_status = await browserAPI.runtime.sendMessage(

@@ -1,5 +1,3 @@
-import { browserAPI } from "./util.js";
-import { state } from "./state.js";
 import { AuthBox } from "./AuthBox.js";
 import { PlansDropdown } from "./PlansDropdown.js";
 import { MatchingOrderBox } from "./MatchingOrder.js";

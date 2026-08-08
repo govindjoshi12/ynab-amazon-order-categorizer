@@ -32,13 +32,15 @@ export const MatchingOrderBox = async () => {
             Date.parse(item.date) < end_date.getTime()
             && item.amount == grand_total_milliunits
         ))
+
+        console.log(filtered_transactions)
         
         if(filtered_transactions.length == 0) {
             matchingOrderElem.textContent = "No match found in selected budget. Splitting transaction will create new transaction."
         } else {
             let item = filtered_transactions[0]
-
-            let split_str = !!item.subtransactions ? 'Already Split. Cannot update.' : 'Not split.'
+            console.log(item.subtransactions)
+            let split_str = item.subtransactions.length === 0 ? 'Not split.' : 'Already Split. Cannot update.' 
 
             matchingOrderElem.innerHTML = `
                 Match found!<br/>
@@ -48,7 +50,7 @@ export const MatchingOrderBox = async () => {
                 Order date: ${item.date},<br/> 
                 Category: ${item.category_name},<br/>
                 Payee: ${item.payee_name},<br/>
-                Split Transaction: ${split_str}
+                Split Status: ${split_str}
             `
 
             // We need to insert the new fields without creating a new object
@@ -59,7 +61,7 @@ export const MatchingOrderBox = async () => {
             state.order_details.payee_id = item.payee_id,
             state.order_details.payee_name = item.payee_name
             state.order_details.account_id = item.account_id
-            state.order_details.pre_split = !!item.subtransactions
+            state.order_details.pre_split = item.subtransactions.length !== 0
         }
     } else {
         matchingOrderElem.textContent = "Connect to YNAB and/or navigate to an amazon order details page to find a matching order."

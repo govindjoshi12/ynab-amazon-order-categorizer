@@ -154,7 +154,7 @@ async function updateTransaction(transaction, plan_id, transaction_id) {
 	if(transaction_id) {
 		endpoint += `/${transaction_id}`
 	}
-	return authorizedFetch(
+	const response = await authorizedFetch(
 		endpoint, {
 			method: 'PUT',
 			headers: {
@@ -163,6 +163,7 @@ async function updateTransaction(transaction, plan_id, transaction_id) {
 			body: JSON.stringify(transaction)
 		}
 	)
+	return response.ok
 }
 
 // Message listener
@@ -204,6 +205,7 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) =>
 			message.plan_id,
 			message.transaction_id
 		).then(data => sendResponse(data))
+		console.log('hello from update ')
 		return true;
 	}
   	return false;

@@ -1,5 +1,3 @@
-document.body.style.border = '10px solid red'
-
 console.log("Hello from the extension.")
 
 function moneyStrToMilliunits(moneyStr) {
